@@ -1172,6 +1172,61 @@
       osc.start(time);
       osc.stop(time + 0.02);
     }
+
+    // Dynamic background polling for selection and sheet changes
+    var pollTimerId = null;
+    function startSelectionPolling() {
+      if (pollTimerId) return;
+      pollTimerId = setInterval(function() {
+        if (!isPlaying) {
+          google.script.run
+            .withSuccessHandler(function(json) {
+              if (!json) return;
+              try {
+                var res = JSON.parse(json);
+                if (!res.phraseNotation && !res.phrase) return;
+                
+                var changed = false;
+                if (!lastGenerated) {
+                  changed = true;
+                } else if (lastGenerated.row !== res.row) {
+                  changed = true;
+                } else if (lastGenerated.phraseNotation !== res.phraseNotation || 
+                           lastGenerated.connectorNotation !== res.connectorNotation) {
+                  changed = true;
+                }
+                
+                if (changed) {
+                  lastGenerated = {
+                    row: res.row,
+                    phrase: res.phrase,
+                    connector: res.connector,
+                    phraseNotation: res.phraseNotation,
+                    connectorNotation: res.connectorNotation
+                  };
+                  
+                  document.getElementById('phrase-syl').textContent = res.phrase || "(Empty)";
+                  document.getElementById('phrase-notation').textContent = res.phraseNotation || "(Empty)";
+                  document.getElementById('connector-syl').textContent = res.connector || "(Empty)";
+                  document.getElementById('connector-notation').textContent = res.connectorNotation || "(Empty)";
+                  
+                  flattenSidebarEvents();
+                  
+                  var syncInfo = document.getElementById('sync-info');
+                  if (syncInfo) {
+                    syncInfo.innerHTML = '<span style="color: var(--accent-emerald);">Auto-Synced Row ' + res.row + '</span>';
+                  }
+                }
+              } catch (e) {
+                console.error("Auto-sync error: ", e);
+              }
+            })
+            .readSelectedRow();
+        }
+      }, 2500);
+    }
+
+    startSelectionPolling();
   </script>
 </body>
 </html>

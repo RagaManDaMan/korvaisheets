@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Sleek Dark Theme Design System */
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      
+      --accent-blue: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      
+      --font-main: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 15px;
+      font-size: 14px;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .header {
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .form-row .col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 6px 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-indigo);
+    }
+
+    select.form-control {
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-indigo) 0%, var(--accent-purple) 100%);
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      margin-bottom: 8px;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-accent {
+      background-color: var(--accent-emerald);
+      color: #0b0f19;
+      margin-bottom: 8px;
+    }
+
+    .btn-accent:hover {
+      opacity: 0.9;
+    }
+
+    /* Target Readout */
+    .target-box {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .target-box .val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .target-box .label {
+      font-size: 10px;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Output Displays */
+    .output-section {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      padding: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      border: 1px solid var(--border-color);
+      margin-top: 8px;
+    }
+
+    .output-label {
+      font-family: var(--font-main);
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .output-val {
+      color: var(--accent-indigo);
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .output-notation {
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .splits-list {
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px;
+    }
+
+    .split-item {
+      padding: 6px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+      transition: background 0.15s;
+    }
+
+    .split-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .split-item.selected {
+      background: var(--accent-indigo);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>KorvaiSheets Pro</h1>
+    <p>Symmetric Korvai & Challenge Engine</p>
+  </div>
+
+  <!-- TALA TARGET CONFIG -->
+  <div class="card">
+    <div class="card-title">⚙️ Target Configurator</div>
+    
+    <div class="form-group">
+      <label for="tala-preset">Tala Preset</label>
+      <select id="tala-preset" class="form-control" onchange="onTalaChange()">
+        <option value="adi">Adi Tala (8 Beats)</option>
+        <option value="rupakam">Rupakam (3 Beats)</option>
+        <option value="khanda">Khanda Chapu (5 Matras)</option>
+        <option value="misra">Misra Chapu (7 Matras)</option>
+        <option value="custom">Custom...</option>
+      </select>
+    </div>
+
+    <div id="custom-fields" class="hidden">
+      <div class="form-row form-group">
+        <div class="col">
+          <label for="beats">Beats</label>
+          <input type="number" id="beats" class="form-control" value="8" min="1" max="32" oninput="recalcTarget()">
+        </div>
+        <div class="col">
+          <label for="gati">Gati</label>
+          <select id="gati" class="form-control" onchange="recalcTarget()">
+            <option value="3">Tisram (3)</option>
+            <option value="4" selected>Chatusram (4)</option>
+            <option value="5">Khandam (5)</option>
+            <option value="7">Misram (7)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row form-group">
+      <div class="col">
+        <label for="cycles">Cycles (Avarthanam)</label>
+        <input type="number" id="cycles" class="form-control" value="2" min="0.25" max="10" step="0.25" oninput="recalcTarget()">
+      </div>
+      <div class="col">
+        <label for="offset">Offset (Edam)</label>
+        <input type="number" id="offset" class="form-control" value="0" oninput="recalcTarget()">
+      </div>
+    </div>
+
+    <div class="target-box" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 6px 12px;">
+      <button class="btn btn-secondary" onclick="nudgeTarget(-1)" style="width: 32px; height: 32px; padding: 0; border-radius: 50%; font-size: 16px; margin: 0; line-height: 1; display: flex; align-items: center; justify-content: center;">-</button>
+      <div>
+        <div id="target-value" class="val" style="line-height: 1.2;">64</div>
+        <div class="label" style="margin-top: 2px;">Target Matras</div>
+      </div>
+      <button class="btn btn-secondary" onclick="nudgeTarget(1)" style="width: 32px; height: 32px; padding: 0; border-radius: 50%; font-size: 16px; margin: 0; line-height: 1; display: flex; align-items: center; justify-content: center;">+</button>
+    </div>
+
+    <button class="btn btn-primary" onclick="loadSplits()">🔍 Find Valid Splits (3A + 2B)</button>
+  </div>
+
+  <!-- RHYTHMIC PLAYBACK & SYNC (Always Visible) -->
+  <div class="card">
+    <div class="card-title">🔊 Rhythmic Playback & Sync</div>
+    
+    <button class="btn btn-secondary" onclick="syncActiveRow()" style="margin-bottom: 8px; border-color: var(--accent-emerald); color: var(--accent-emerald);">
+      🔗 Load Selection from Sheet
+    </button>
+    <div id="sync-info" style="font-size: 11px; color: var(--text-secondary); text-align: center; margin-bottom: 8px;">
+      Select a Korvai row in the sheet and click above to load it.
+    </div>
+
+    <div class="form-row form-group" style="margin-bottom: 8px;">
+      <div class="col" style="flex: 1;">
+        <label for="sidebar-bpm" style="margin-bottom: 2px;">Tempo: <span id="sidebar-bpm-val" style="font-weight:bold; color: #fff;">120</span> BPM</label>
+        <input type="range" id="sidebar-bpm" min="60" max="220" value="120" class="form-control" style="padding:0; height:8px;" oninput="onBpmChange()">
+      </div>
+      <div class="col" style="flex: 1;">
+        <label for="metro-vol" style="margin-bottom: 2px;">Metro Vol: <span id="metro-vol-val" style="font-weight:bold; color: #fff;">50</span>%</label>
+        <input type="range" id="metro-vol" min="0" max="100" value="50" class="form-control" style="padding:0; height:8px;" oninput="onMetroVolChange()">
+      </div>
+    </div>
+
+    <button id="sidebar-play-btn" class="btn btn-secondary" onclick="toggleAudio()" style="margin-bottom:0;">
+      ▶ Play Sound
+    </button>
+  </div>
+
+  <!-- VALID SPLITS SELECTOR -->
+  <div class="card hidden" id="splits-card">
+    <div class="card-title">🧩 Symmetric Splits (A & B Sizes)</div>
+    <div class="splits-list" id="splits-list-container">
+      <p style="font-size: 11px; color: var(--text-secondary); text-align: center; padding: 10px;">Click search above to list splits</p>
+    </div>
+  </div>
+
+  <!-- SOLKATTU SYLLABLES DISPLAY -->
+  <div id="generator-card" class="card hidden">
+    <div class="card-title">🥁 Solkattu Generator</div>
+    
+    <button class="btn btn-secondary" onclick="generateSyllables()">🎲 Generate Random Syllables</button>
+    
+    <div class="output-section">
+      <div class="output-label">Phrase A Syllables</div>
+      <div id="phrase-syl" class="output-val">...</div>
+      <div class="output-label" style="margin-top:5px;">Phrase A Notation</div>
+      <div id="phrase-notation" class="output-val output-notation">...</div>
+    </div>
+
+    <div class="output-section">
+      <div class="output-label">Connector B Syllables</div>
+      <div id="connector-syl" class="output-val">...</div>
+      <div class="output-label" style="margin-top:5px;">Connector B Notation</div>
+      <div id="connector-notation" class="output-val output-notation">...</div>
+    </div>
+
+    <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <button class="btn btn-accent" onclick="insertToRow()">📥 Insert Into Selected Row</button>
+      <button class="btn btn-secondary" style="border-color: var(--accent-purple); color: var(--accent-purple);" onclick="createChallenge()">💡 Append Challenge to Sheet</button>
+    </div>
+  </div>
+
+  <script>
+    var currentTarget = 64;
+    var validSplits = [];
+    var selectedSplitIdx = -1;
+    var lastGenerated = null;
+
+    // Web Audio Synthesizer variables
+    var audioCtx = null;
+    var isPlaying = false;
+    var nextMatraTime = 0;
+    var bpm = 120;
+    var metroVolume = 0.5;
+    var schedulerTimerId = null;
+    var flatEvents = [];
+    var currentEventIdx = 0;
+    var metronomeStep = 0;
+
+    // Triggered on page load
+    recalcTarget();
+
+    function onTalaChange() {
+      var preset = document.getElementById('tala-preset').value;
+      var customFields = document.getElementById('custom-fields');
+      if (preset === 'custom') {
+        customFields.classList.remove('hidden');
+      } else {
+        customFields.classList.add('hidden');
+      }
+      recalcTarget();
+    }
+
+    function recalcTarget() {
+      var preset = document.getElementById('tala-preset').value;
+      var beats = 8;
+      var gati = 4;
+      if (preset === 'adi') {
+        beats = 8; gati = 4;
+      } else if (preset === 'rupakam') {
+        beats = 3; gati = 4;
+      } else if (preset === 'khanda') {
+        beats = 5; gati = 1;
+      } else if (preset === 'misra') {
+        beats = 7; gati = 1;
+      } else {
+        beats = parseInt(document.getElementById('beats').value) || 8;
+        gati = parseInt(document.getElementById('gati').value) || 4;
+      }
+
+      var cycles = parseFloat(document.getElementById('cycles').value) || 1;
+      var offset = parseInt(document.getElementById('offset').value) || 0;
+
+      currentTarget = (beats * gati * cycles) + offset;
+      document.getElementById('target-value').textContent = currentTarget;
+      
+      // Hide output displays when inputs change
+      document.getElementById('splits-card').classList.add('hidden');
+      document.getElementById('generator-card').classList.add('hidden');
+      stopAudio();
+    }
+
+    function nudgeTarget(amount) {
+      currentTarget = Math.max(1, currentTarget + amount);
+      document.getElementById('target-value').textContent = currentTarget;
+      
+      // Hide output displays when inputs change
+      document.getElementById('splits-card').classList.add('hidden');
+      document.getElementById('generator-card').classList.add('hidden');
+      stopAudio();
+    }
+
+    function loadSplits() {
+      // Do NOT call recalcTarget() here as it resets our manually nudged value
+      var container = document.getElementById('splits-list-container');
+      container.innerHTML = '<p style="font-size: 11px; color: var(--text-secondary); text-align: center; padding: 10px;">Searching...</p>';
+      document.getElementById('splits-card').classList.remove('hidden');
+      
+      google.script.run
+        .withSuccessHandler(function(json) {
+          validSplits = JSON.parse(json);
+          renderSplits();
+        })
+        .withFailureHandler(function(err) {
+          container.innerHTML = '<p style="font-size: 11px; color: var(--accent-rose); text-align: center; padding: 10px;">Error: ' + err.message + '</p>';
+        })
+        .getValidSplits(currentTarget);
+    }
+
+    function findAsymmetricProgression(target) {
+      for (var dA = -3; dA <= 3; dA++) {
+        for (var dB = -3; dB <= 3; dB++) {
+          if (dA === 0 && dB === 0) continue;
+          
+          var rem = target - (3 * dA) - dB;
+          if (rem < 5) continue;
+          
+          for (var A = 1; A <= Math.floor(rem / 3); A++) {
+            var remB = rem - (3 * A);
+            if (remB >= 2 && remB % 2 === 0) {
+              var B = remB / 2;
+              
+              var A1 = A;
+              var A2 = A + dA;
+              var A3 = A + 2 * dA;
+              var B1 = B;
+              var B2 = B + dB;
+              
+              if (A1 >= 1 && A2 >= 1 && A3 >= 1 && B1 >= 1 && B2 >= 1) {
+                return {
+                  A1: A1, A2: A2, A3: A3,
+                  B1: B1, B2: B2,
+                  dA: dA, dB: dB
+                };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function renderSplits() {
+      var container = document.getElementById('splits-list-container');
+      container.innerHTML = '';
+      
+      if (validSplits.length === 0) {
+        var msg = 'Not possible to create a 3A + 2B pattern from ' + currentTarget + ' target matras.';
+        var prog = findAsymmetricProgression(currentTarget);
+        
+        if (prog) {
+          msg += '<br/><br/><span style="color: var(--accent-blue);">Suggestion:</span><br/>How about an <b>A + B + A\' + B\' + A\'\'</b> progressive pattern?<br/>' +
+                 'Where:<br/>' +
+                 '• Phrase A = <b>' + prog.A1 + '</b><br/>' +
+                 '• Connector B = <b>' + prog.B1 + '</b><br/>' +
+                 '• Phrase A\' = <b>' + prog.A2 + '</b> (A ' + (prog.dA >= 0 ? '+' : '-') + ' ' + Math.abs(prog.dA) + ')<br/>' +
+                 '• Connector B\' = <b>' + prog.B2 + '</b> (B ' + (prog.dB >= 0 ? '+' : '-') + ' ' + Math.abs(prog.dB) + ')<br/>' +
+                 '• Phrase A\'\' = <b>' + prog.A3 + '</b> (A\' ' + (prog.dA >= 0 ? '+' : '-') + ' ' + Math.abs(prog.dA) + ')<br/>' +
+                 'Total: ' + prog.A1 + ' + ' + prog.B1 + ' + ' + prog.A2 + ' + ' + prog.B2 + ' + ' + prog.A3 + ' = <b>' + currentTarget + '</b> matras.';
+        } else {
+          msg += '<br/><br/>(Minimum required count for any progressive 5-phrase pattern is 5 matras.)';
+        }
+        
+        container.innerHTML = '<div style="font-size: 11px; color: var(--accent-rose); padding: 10px; line-height: 1.4;">' + msg + '</div>';
+        document.getElementById('generator-card').classList.add('hidden');
+        return;
+      }
+      
+      selectedSplitIdx = -1;
+      
+      validSplits.forEach(function(item, idx) {
+        var el = document.createElement('div');
+        el.className = 'split-item';
+        el.innerHTML = '<span>Phrase A: <b>' + item.p + '</b></span> <span>Connector B: <b>' + item.c + '</b></span>';
+        el.onclick = function() {
+          selectSplit(idx, el);
+        };
+        container.appendChild(el);
+      });
+    }
+
+    function selectSplit(idx, element) {
+      document.querySelectorAll('.split-item').forEach(function(el) {
+        el.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      selectedSplitIdx = idx;
+      
+      // Show generator card
+      document.getElementById('generator-card').classList.remove('hidden');
+      
+      // Clear previous outputs
+      document.getElementById('phrase-syl').textContent = '...';
+      document.getElementById('phrase-notation').textContent = '...';
+      document.getElementById('connector-syl').textContent = '...';
+      document.getElementById('connector-notation').textContent = '...';
+      lastGenerated = null;
+      stopAudio();
+    }
+
+    function generateSyllables() {
+      if (selectedSplitIdx === -1) return;
+      var split = validSplits[selectedSplitIdx];
+      
+      document.getElementById('phrase-syl').textContent = 'Generating...';
+      document.getElementById('connector-syl').textContent = 'Generating...';
+      stopAudio();
+      
+      google.script.run
+        .withSuccessHandler(function(json) {
+          var res = JSON.parse(json);
+          lastGenerated = res;
+          document.getElementById('phrase-syl').textContent = res.phrase;
+          document.getElementById('phrase-notation').textContent = res.phraseNotation;
+          document.getElementById('connector-syl').textContent = res.connector;
+          document.getElementById('connector-notation').textContent = res.connectorNotation;
+          
+          // Pre-flatten the newly generated events
+          flattenSidebarEvents();
+        })
+        .generateSyllables(split.p, split.c);
+    }
+
+    function insertToRow() {
+      if (!lastGenerated || selectedSplitIdx === -1) return;
+      var split = validSplits[selectedSplitIdx];
+      
+      google.script.run
+        .withSuccessHandler(function() {
+          google.script.host.editor.focus();
+        })
+        .writeKorvaiToRow(split.p, split.c, lastGenerated.phraseNotation, lastGenerated.connectorNotation);
+    }
+
+    function createChallenge() {
+      if (selectedSplitIdx === -1) return;
+      var split = validSplits[selectedSplitIdx];
+      var preset = document.getElementById('tala-preset').value;
+      var talaName = preset === 'custom' ? 'Custom' : document.getElementById('tala-preset').options[document.getElementById('tala-preset').selectedIndex].text.split(' ')[0];
+      
+      google.script.run
+        .withSuccessHandler(function() {
+          google.script.host.editor.focus();
+        })
+        .insertChallengeFromSidebar(talaName, currentTarget, split.p, split.c);
+    }
+
+    function syncActiveRow() {
+      var syncInfo = document.getElementById('sync-info');
+      syncInfo.innerHTML = '<span style="color: var(--accent-blue);">Syncing...</span>';
+      stopAudio();
+      
+      google.script.run
+        .withSuccessHandler(function(json) {
+          var res = JSON.parse(json);
+          
+          if (!res.phraseNotation && !res.phrase) {
+            syncInfo.innerHTML = '<span style="color: var(--accent-rose);">Selected row is empty or not formatted.</span>';
+            return;
+          }
+          
+          lastGenerated = {
+            phrase: res.phrase,
+            connector: res.connector,
+            phraseNotation: res.phraseNotation,
+            connectorNotation: res.connectorNotation
+          };
+          
+          // Populate UI displays
+          document.getElementById('phrase-syl').textContent = res.phrase || "(Empty)";
+          document.getElementById('phrase-notation').textContent = res.phraseNotation || "(Empty)";
+          document.getElementById('connector-syl').textContent = res.connector || "(Empty)";
+          document.getElementById('connector-notation').textContent = res.connectorNotation || "(Empty)";
+          
+          // Show the generator card so they can play it
+          document.getElementById('generator-card').classList.remove('hidden');
+          
+          // Pre-flatten the events
+          flattenSidebarEvents();
+          
+          syncInfo.innerHTML = '<span style="color: var(--accent-emerald);">Synced Row ' + res.row + ' (A: ' + res.p + ', B: ' + res.c + ')</span>';
+        })
+        .withFailureHandler(function(err) {
+          syncInfo.innerHTML = '<span style="color: var(--accent-rose);">Error: ' + err.message + '</span>';
+        })
+        .readSelectedRow();
+    }
+
+    // BPM change callback
+    function onBpmChange() {
+      bpm = parseInt(document.getElementById('sidebar-bpm').value);
+      document.getElementById('sidebar-bpm-val').textContent = bpm;
+    }
+
+    // Metronome volume change callback
+    function onMetroVolChange() {
+      metroVolume = parseInt(document.getElementById('metro-vol').value) / 100;
+      document.getElementById('metro-vol-val').textContent = Math.round(metroVolume * 100);
+    }
+
+    // AUDIO PARSING & PLAYBACK
+    function parseTokensToSlots(toksStr) {
+      if (!toksStr) return [];
+      // Ensure commas and semicolons are separated by spaces so they are not skipped, and clean hyphens
+      var spacedStr = toksStr.toString().replace(/-/g, ' ').replace(/,/g, ' , ').replace(/;/g, ' ; ');
+      var tokens = spacedStr.split(/\s+/).filter(Boolean);
+      var slots = [];
+      var longSyllables = ["taam", "dheem", "naam", "thaam", "thoom", "toom", "daam", "deem", "jhem", "jem"];
+      
+      for (var i = 0; i < tokens.length; i++) {
+        var tok = tokens[i].trim().toLowerCase();
+        if (!tok) continue;
+        
+        if (tok === ',' || tok === 'rest') {
+          slots.push({ type: 'gap' });
+        } else if (tok === ';') {
+          slots.push({ type: 'gap' });
+          slots.push({ type: 'continuation' });
+        } else if (longSyllables.indexOf(tok) !== -1) {
+          slots.push({ type: 'stroke', syllable: tok, duration: 2 });
+          slots.push({ type: 'continuation' });
+        } else {
+          slots.push({ type: 'stroke', syllable: tok, duration: 1 });
+        }
+      }
+      return slots;
+    }
+
+    function flattenSidebarEvents() {
+      if (!lastGenerated) return;
+      
+      var pSlots = parseTokensToSlots(lastGenerated.phrase);
+      var cSlots = parseTokensToSlots(lastGenerated.connector);
+      
+      // Structure: A B A B A
+      flatEvents = [];
+      flatEvents = flatEvents.concat(pSlots); // A1
+      flatEvents = flatEvents.concat(cSlots); // B1
+      flatEvents = flatEvents.concat(pSlots); // A2
+      flatEvents = flatEvents.concat(cSlots); // B2
+      flatEvents = flatEvents.concat(pSlots); // A3
+    }
+
+    function toggleAudio() {
+      if (isPlaying) {
+        stopAudio();
+      } else {
+        if (!lastGenerated || flatEvents.length === 0) {
+          alert("No Korvai loaded! Please click 'Load Selection from Sheet' or generate a split to play.");
+          return;
+        }
+        startAudio();
+      }
+    }
+
+    function initAudioContext() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      } catch (e) {
+        console.error("AudioContext initialization failed:", e);
+        alert("Audio renderer failed to initialize: " + e.message + "\n\nPlease ensure your browser allows audio playback and that you are using a modern browser like Chrome.");
+      }
+    }
+
+    function startAudio() {
+      if (!lastGenerated || flatEvents.length === 0) return;
+      initAudioContext();
+      
+      isPlaying = true;
+      currentEventIdx = 0;
+      metronomeStep = 0;
+      nextMatraTime = audioCtx.currentTime + 0.1;
+      
+      document.getElementById('sidebar-play-btn').innerHTML = '■ Stop Sound';
+      document.getElementById('sidebar-play-btn').classList.add('playing');
+      
+      schedulerLoop();
+    }
+
+    function stopAudio() {
+      isPlaying = false;
+      clearTimeout(schedulerTimerId);
+      schedulerTimerId = null;
+      
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      
+      var playBtn = document.getElementById('sidebar-play-btn');
+      if (playBtn) {
+        playBtn.innerHTML = '▶ Play Sound';
+        playBtn.classList.remove('playing');
+      }
+    }
+
+    function schedulerLoop() {
+      if (!isPlaying) return;
+      
+      while (nextMatraTime < audioCtx.currentTime + 0.1) {
+        scheduleNextEvent(nextMatraTime);
+        
+        // Duration of 1 matra subdivision conformed to Gati
+        var preset = document.getElementById('tala-preset').value;
+        var gati = 4;
+        if (preset === 'adi' || preset === 'rupakam') gati = 4;
+        else if (preset === 'khanda') gati = 1;
+        else if (preset === 'misra') gati = 1;
+        else gati = parseInt(document.getElementById('gati').value) || 4;
+        
+        var secondsPerBeat = 60.0 / bpm;
+        var matraDuration = secondsPerBeat / gati;
+        
+        nextMatraTime += matraDuration;
+      }
+      
+      schedulerTimerId = setTimeout(schedulerLoop, 25.0);
+    }
+
+    function scheduleNextEvent(time) {
+      var preset = document.getElementById('tala-preset').value;
+      var beats = 8;
+      var gati = 4;
+      if (preset === 'adi') {
+        beats = 8; gati = 4;
+      } else if (preset === 'rupakam') {
+        beats = 3; gati = 4;
+      } else if (preset === 'khanda') {
+        beats = 5; gati = 1;
+      } else if (preset === 'misra') {
+        beats = 7; gati = 1;
+      } else {
+        beats = parseInt(document.getElementById('beats').value) || 8;
+        gati = parseInt(document.getElementById('gati').value) || 4;
+      }
+      
+      var cycleMatras = beats * gati;
+      var talaMatraIndex = metronomeStep % cycleMatras;
+      var isMainBeat = (talaMatraIndex % gati === 0);
+      
+      // Play Tala click conformed to metronome
+      if (isMainBeat) {
+        playMetronomeClick(time, (talaMatraIndex === 0));
+      } else if (gati > 1) {
+        playSubdivisionTick(time);
+      }
+      
+      // Soft chime at the end of every tala cycle (start of next cycle)
+      if (metronomeStep > 0 && talaMatraIndex === 0) {
+        playChime(time, 1200, 0.05);
+      }
+      
+      // Play Korvai stroke
+      var event = flatEvents[currentEventIdx];
+      if (event) {
+        if (event.type === 'stroke') {
+          playMridangamStroke(time, event.syllable);
+        } else if (event.type === 'gap') {
+          playGapTick(time);
+        }
+      }
+      
+      metronomeStep++;
+      currentEventIdx++;
+      
+      // Stop when we reach the end of the Korvai
+      if (currentEventIdx >= flatEvents.length) {
+        var secondsPerBeat = 60.0 / bpm;
+        var matraDuration = secondsPerBeat / gati;
+        playChime(time + matraDuration, 1800, 0.15); // End of korvai chime
+        
+        var stopTime = nextMatraTime;
+        setTimeout(function() {
+          if (isPlaying && currentEventIdx >= flatEvents.length) {
+            stopAudio();
+          }
+        }, (stopTime - audioCtx.currentTime) * 1000);
+      }
+    }
+
+    // AUDIO SYNTH FUNCTIONS
+    function playChime(time, freq, volume) {
+      if (!audioCtx) return;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq || 1500, time);
+      gain.gain.setValueAtTime(volume || 0.1, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+      
+      osc.start(time);
+      osc.stop(time + 0.5);
+    }
+
+    function playMetronomeClick(time, isSamam) {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      var freq = isSamam ? 1000 : 800;
+      var duration = 0.03;
+      var volume = (isSamam ? 0.25 : 0.15) * metroVolume;
+      
+      osc.frequency.setValueAtTime(freq, time);
+      gain.gain.setValueAtTime(volume, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+      
+      osc.start(time);
+      osc.stop(time + duration);
+    }
+
+    function playSubdivisionTick(time) {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.frequency.setValueAtTime(1400, time);
+      var volume = 0.02 * metroVolume;
+      gain.gain.setValueAtTime(volume, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.015);
+      
+      osc.start(time);
+      osc.stop(time + 0.02);
+    }
+
+    function playMridangamStroke(time, syllable) {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      var cleanSyl = syllable.toLowerCase().trim();
+      var startFreq = 380;
+      var endFreq = 180;
+      var duration = 0.08;
+      var volume = 0.4;
+      
+      var trebleLong = ["taam", "thaam", "thoom", "toom", "jhem", "jem"];
+      var bassLong = ["dheem", "naam", "daam", "deem"];
+      
+      if (trebleLong.indexOf(cleanSyl) !== -1) {
+        // Long open treble stroke
+        startFreq = 440;
+        endFreq = 440;
+        duration = 0.35;
+        volume = 0.4;
+        
+        var ringOsc = audioCtx.createOscillator();
+        var ringGain = audioCtx.createGain();
+        ringOsc.connect(ringGain);
+        ringGain.connect(audioCtx.destination);
+        ringOsc.frequency.setValueAtTime(880, time);
+        ringGain.gain.setValueAtTime(0.15, time);
+        ringGain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+        ringOsc.start(time);
+        ringOsc.stop(time + 0.15);
+      } else if (bassLong.indexOf(cleanSyl) !== -1) {
+        // Long open bass stroke
+        startFreq = 160;
+        endFreq = 110;
+        duration = 0.4;
+        volume = 0.5;
+        
+        var subOsc = audioCtx.createOscillator();
+        var subGain = audioCtx.createGain();
+        subOsc.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        subOsc.frequency.setValueAtTime(80, time);
+        subOsc.frequency.exponentialRampToValueAtTime(55, time + 0.35);
+        subGain.gain.setValueAtTime(0.35, time);
+        subGain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+        subOsc.start(time);
+        subOsc.stop(time + 0.4);
+      } else if (["t", "ta", "tha", "te"].indexOf(cleanSyl) !== -1) {
+        startFreq = 650;
+        endFreq = 350;
+        duration = 0.06;
+        volume = 0.35;
+      } else if (["k", "ki", "ka", "ke"].indexOf(cleanSyl) !== -1) {
+        startFreq = 480;
+        endFreq = 260;
+        duration = 0.05;
+        volume = 0.25;
+      } else if (["d", "dhi", "g", "n", "na", "num"].indexOf(cleanSyl) !== -1) {
+        startFreq = 195;
+        endFreq = 120;
+        duration = 0.14;
+        volume = 0.5;
+        
+        var subOsc = audioCtx.createOscillator();
+        var subGain = audioCtx.createGain();
+        subOsc.connect(subGain);
+        subGain.connect(audioCtx.destination);
+        subOsc.frequency.setValueAtTime(95, time);
+        subOsc.frequency.exponentialRampToValueAtTime(60, time + 0.12);
+        subGain.gain.setValueAtTime(0.3, time);
+        subGain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+        subOsc.start(time);
+        subOsc.stop(time + 0.13);
+      }
+      
+      osc.frequency.setValueAtTime(startFreq, time);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, time + duration - 0.01);
+      
+      gain.gain.setValueAtTime(volume, time);
+      gain.gain.linearRampToValueAtTime(0.001, time + duration);
+      
+      osc.start(time);
+      osc.stop(time + duration);
+    }
+
+    function playGapTick(time) {
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.frequency.setValueAtTime(1700, time);
+      gain.gain.setValueAtTime(0.03, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.015);
+      
+      osc.start(time);
+      osc.stop(time + 0.02);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KorvaiSheets — Interactive Carnatic Rhythm & Korvai Generator</title>
+  <meta name="description" content="A powerful, visual, and student-friendly tool to calculate, design, and play Carnatic Korvais, Moras, and Yati patterns.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glow-container">
+    <div class="glow-sphere glow-1"></div>
+    <div class="glow-sphere glow-2"></div>
+  </div>
+
+  <header class="app-header">
+    <div class="header-logo">
+      <span class="logo-icon">🥁</span>
+      <div class="logo-text">
+        <h1>KorvaiSheets</h1>
+        <p>Interactive Carnatic Rhythm & Korvai Playground</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="help-btn" class="btn btn-secondary">Help & Theory</button>
+    </div>
+  </header>
+
+  <main class="app-layout">
+    <!-- LEFT SIDEBAR: Configuration & Dictionaries -->
+    <section class="layout-sidebar">
+      <!-- TALA CONFIGURATOR CARD -->
+      <div class="card glass-card">
+        <h2 class="card-title"><span class="card-icon">⚙️</span> Tala Configurator</h2>
+        
+        <div class="form-group">
+          <label for="tala-select">Tala Preset</label>
+          <select id="tala-select" class="form-control">
+            <option value="adi">Adi Tala (8 Beats / 32 Matras)</option>
+            <option value="rupakam">Rupakam Tala (3 Beats / 12 Matras)</option>
+            <option value="khandachapu">Khanda Chapu (5 Matras)</option>
+            <option value="misrachapu">Misra Chapu (7 Matras)</option>
+            <option value="custom">Custom Tala...</option>
+          </select>
+        </div>
+
+        <div id="custom-tala-fields" class="custom-fields hidden">
+          <div class="form-row">
+            <div class="form-group col">
+              <label for="custom-beats">Beats (Aksharas)</label>
+              <input type="number" id="custom-beats" class="form-control" min="1" max="32" value="8">
+            </div>
+            <div class="form-group col">
+              <label for="custom-gati">Gati (Subdivisions)</label>
+              <select id="custom-gati" class="form-control">
+                <option value="3">Tisra (3)</option>
+                <option value="4" selected>Chatusra (4)</option>
+                <option value="5">Khanda (5)</option>
+                <option value="7">Misra (7)</option>
+                <option value="9">Sankeerna (9)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="target-cycles">Avarthanams (Cycles)</label>
+            <input type="number" id="target-cycles" class="form-control" min="0.25" max="10" step="0.25" value="2">
+          </div>
+          <div class="form-group col">
+            <label for="target-offset">Offset (Edam / Idam)</label>
+            <div class="input-offset-group">
+              <input type="number" id="target-offset" class="form-control" value="0">
+              <span class="offset-label">matras</span>
+            </div>
+            <span class="field-help">Use -ve for before Samam, +ve for after</span>
+          </div>
+        </div>
+
+        <div class="target-summary">
+          <div class="summary-label">Target Count</div>
+          <div class="summary-value"><span id="target-matras-display">64</span> <span class="unit">matras</span></div>
+          <div class="summary-formula" id="target-formula-display">8 beats &times; 4 gati &times; 2 cycles = 64 matras</div>
+        </div>
+      </div>
+
+      <!-- SYLLABLE DICTIONARY CARD -->
+      <div class="card glass-card">
+        <h2 class="card-title"><span class="card-icon">📖</span> Solkattu Dictionary</h2>
+        
+        <div class="form-group">
+          <label>Rendering Style</label>
+          <div class="toggle-group">
+            <button id="style-notation-btn" class="toggle-btn active" data-style="notation">Classical (t, ,)</button>
+            <button id="style-syllable-btn" class="toggle-btn" data-style="syllabic">Recitative (Ta-Ka)</button>
+          </div>
+        </div>
+
+        <div class="dictionary-list" id="dict-mappings-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <button id="reset-dict-btn" class="btn btn-tertiary">Reset Dictionary to Default</button>
+      </div>
+    </section>
+
+    <!-- RIGHT CONTENT: Editor, Visualization, Player -->
+    <section class="layout-main">
+      <!-- PLAYER CONTROLS CARD -->
+      <div class="card glass-card player-card">
+        <div class="player-top">
+          <button id="play-btn" class="btn btn-primary btn-play">
+            <span class="play-icon">▶</span> Play Korvai
+          </button>
+          <div class="tempo-control">
+            <label for="bpm-slider">Tempo: <span id="bpm-val">120</span> BPM</label>
+            <input type="range" id="bpm-slider" min="60" max="240" value="120" class="range-slider">
+          </div>
+          <div class="audio-settings">
+            <div class="checkbox-group">
+              <input type="checkbox" id="play-gaps-tick" checked>
+              <label for="play-gaps-tick">Soft tick on gaps</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="loop-korvai">
+              <label for="loop-korvai">Loop</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- STANDALONE BACKGROUND METRONOME -->
+        <div class="standalone-metronome">
+          <div class="metronome-controls">
+            <button id="metronome-toggle-btn" class="btn btn-secondary btn-sm">
+              <span id="metronome-toggle-icon">📢</span> Start Background Metronome
+            </button>
+            <div class="control-group">
+              <select id="metronome-sound-select" class="form-control form-control-sm">
+                <option value="woodblock">Classic Woodblock</option>
+                <option value="bell">High Bell</option>
+                <option value="mridangam">Mridangam Clicks</option>
+                <option value="beep">Electronic Beep</option>
+              </select>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="metronome-subdivisions" checked>
+              <label for="metronome-subdivisions">Metronome subdivisions</label>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- VISUAL METRONOME -->
+        <div class="metronome-visualizer">
+          <div class="metronome-header">
+            <span id="tala-name-display">Adi Tala (Chatusra Gati)</span>
+            <span id="metronome-counter">Beat: 1 . 2 . 3 . 4</span>
+          </div>
+          <div class="metronome-track" id="metronome-track">
+            <!-- Beat nodes will be created here dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- KORVAI EDITOR CARD -->
+      <div class="card glass-card editor-card">
+        <div class="editor-header">
+          <h2 class="card-title"><span class="card-icon">✍️</span> Korvai Composer</h2>
+          <button id="add-line-btn" class="btn btn-secondary btn-sm">+ Add Line</button>
+        </div>
+
+        <div class="editor-lines" id="editor-lines-container">
+          <!-- Dynamic lines inserted here -->
+        </div>
+
+        <div class="editor-footer">
+          <div class="math-status">
+            <div class="math-item">
+              <span class="label">Total Matras:</span>
+              <span class="value" id="total-korvai-matras">0</span>
+            </div>
+            <div class="math-item">
+              <span class="label">Target:</span>
+              <span class="value" id="math-target-val">64</span>
+            </div>
+            <div class="math-item status-badge" id="mismatch-badge">
+              <span id="mismatch-text">Match!</span>
+            </div>
+            <button id="nudge-btn" class="btn btn-accent btn-sm hidden">🔄 Symmetric Nudge</button>
+          </div>
+
+
+          <!-- REDESIGN ASSISTANT -->
+          <div id="redesign-suggestion-box" class="suggestion-box hidden">
+            <div class="suggestion-icon">💡</div>
+            <div class="suggestion-content">
+              <h3>Redesign Suggestion</h3>
+              <p id="suggestion-text">Add 2 matras (karvais) to the end of the first two repetitions to fit 64 matras.</p>
+              <button id="apply-suggestion-btn" class="btn btn-accent btn-sm">Apply Suggestion</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISUALIZERS: Yati Shape -->
+      <div class="grid-2col">
+        <div class="card glass-card visualizer-card">
+          <h2 class="card-title"><span class="card-icon">📈</span> Yati Shape Visualizer</h2>
+          <div class="visualizer-content">
+            <div class="svg-container">
+              <svg id="yati-svg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet">
+                <!-- SVG elements will be populated by JS -->
+              </svg>
+            </div>
+            <div class="yati-info">
+              <h3 id="yati-shape-name">Sama Yati</h3>
+              <p id="yati-shape-desc">All lines are of equal length, creating a uniform block representation.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRESETS LIBRARY CARD -->
+        <div class="card glass-card presets-card">
+          <h2 class="card-title"><span class="card-icon">📚</span> Spreadsheet Examples & Lessons</h2>
+          <p class="presets-intro">Click any preset to load its mathematical structure directly into the playground:</p>
+          
+          <div class="preset-categories">
+            <div class="preset-category">
+              <h4>Example 4: Variations of 6-1-6-1-6</h4>
+              <div class="preset-buttons">
+                <button class="btn btn-preset" data-preset="ex4-sama">Sama Yati (Uniform 60)</button>
+                <button class="btn btn-preset" data-preset="ex4-sroto">Srotovaha Yati (Increasing 60)</button>
+                <button class="btn btn-preset" data-preset="ex4-mixed">Mixed Structure (Varying 60)</button>
+                <button class="btn btn-preset" data-preset="ex4-adi64">Adi Tala Adaptation (64)</button>
+              </div>
+            </div>
+
+            <div class="preset-category">
+              <h4>Example 5 & 7: Gopuccha & Shapes</h4>
+              <div class="preset-buttons">
+                <button class="btn btn-preset" data-preset="ex5-gopuccha">Ex 5: Gopuccha (7-5-5-5-3)</button>
+                <button class="btn btn-preset" data-preset="ex5-rupakam">Ex 5: Rupakam Excess Challenge (25)</button>
+                <button class="btn btn-preset" data-preset="ex7-gopuccha">Ex 7: Gopuccha tapering (30)</button>
+                <button class="btn btn-preset" data-preset="ex7-river">Ex 7: Srotovaha river (30)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- HELP & THEORY MODAL -->
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2>Understanding Carnatic Korvais & Yatis</h2>
+        <span class="close-btn" id="close-modal-btn">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h3>What is a Korvai?</h3>
+        <p>A <strong>Korvai</strong> is a structured rhythmic composition in Carnatic music. It consists of two main parts: the <strong>Purvangam</strong> (initial structured section) and the <strong>Uttaranga</strong> (resolving sequence, often repeated 3 times as a <em>tihai</em> or <em>arudi</em>).</p>
+        
+        <h3>How to Read numbers in KorvaiSheets</h3>
+        <p>A Korvai is defined as a series of numbers. <strong>Positive numbers</strong> denote phrase lengths, while <strong>gaps (karvais)</strong> are represented by intervals. The app alternates between phrases and gaps:
+        <ul>
+          <li><code>6, 1, 6, 1, 6</code> means: phrase of 6, gap of 1, phrase of 6, gap of 1, phrase of 6. Total = 20 matras.</li>
+          <li>In classical notation, this displays as <code>tt,ktt , tt,ktt , tt,ktt</code> where <code>,</code> represents a 1-matra gap.</li>
+        </ul>
+        </p>
+
+        <h3>Yati Shapes</h3>
+        <p>Yati refers to the structural envelope of a rhythmic phrase sequence:
+          <ul>
+            <li><strong>Sama Yati</strong>: Constant width (e.g., 6-6-6)</li>
+            <li><strong>Srotovaha Yati</strong>: Widening like a river (e.g., 5-6-7 or 3-5-7)</li>
+            <li><strong>Gopuccha Yati</strong>: Tapering like a cow's tail (e.g., 7-5-3)</li>
+            <li><strong>Mridangam Yati</strong>: Wide center, narrow ends (e.g., 3-7-3)</li>
+            <li><strong>Damaruka Yati</strong>: Narrow center, wide ends (e.g., 7-3-7)</li>
+          </ul>
+        </p>
+
+        <h3>Math Alignment Challenge</h3>
+        <p>A key skill for percussionists is adapting a korvai to fit the <em>Tala</em> cycle. For instance, in Adi Tala (32 matras in 1 cycle, 64 in 2 cycles), a korvai totalling 60 matras leaves a deficit of 4. We resolve this by adding 2 matras (karvais) to the end of the first two lines, making the final structure 22 + 22 + 20 = 64 matras!</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>&copy; 2026 KorvaiSheets. Pair-programmed with Antigravity AI.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

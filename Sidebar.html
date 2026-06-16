@@ -331,12 +331,12 @@
 
     <div class="form-row form-group" style="margin-bottom: 8px;">
       <div class="col" style="flex: 1;">
-        <label for="sidebar-bpm" style="margin-bottom: 2px;">Tempo: <span id="sidebar-bpm-val" style="font-weight:bold; color: #fff;">120</span> BPM</label>
-        <input type="range" id="sidebar-bpm" min="60" max="220" value="120" class="form-control" style="padding:0; height:8px;" oninput="onBpmChange()">
+        <label for="sidebar-bpm" style="margin-bottom: 2px;">Tempo: <span id="sidebar-bpm-val" style="font-weight:bold; color: #fff;">85</span> BPM</label>
+        <input type="range" id="sidebar-bpm" min="60" max="220" value="85" class="form-control" style="padding:0; height:8px;" oninput="onBpmChange()">
       </div>
       <div class="col" style="flex: 1;">
-        <label for="metro-vol" style="margin-bottom: 2px;">Metro Vol: <span id="metro-vol-val" style="font-weight:bold; color: #fff;">50</span>%</label>
-        <input type="range" id="metro-vol" min="0" max="100" value="50" class="form-control" style="padding:0; height:8px;" oninput="onMetroVolChange()">
+        <label for="metro-vol" style="margin-bottom: 2px;">Metro Vol: <span id="metro-vol-val" style="font-weight:bold; color: #fff;">25</span>%</label>
+        <input type="range" id="metro-vol" min="0" max="100" value="25" class="form-control" style="padding:0; height:8px;" oninput="onMetroVolChange()">
       </div>
     </div>
 
@@ -406,8 +406,8 @@
     var audioCtx = null;
     var isPlaying = false;
     var nextMatraTime = 0;
-    var bpm = 120;
-    var metroVolume = 0.5;
+    var bpm = 85;
+    var metroVolume = 0.25;
     var schedulerTimerId = null;
     var flatEvents = [];
     var currentEventIdx = 0;

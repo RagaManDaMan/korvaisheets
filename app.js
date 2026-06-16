@@ -46,7 +46,7 @@ const state = {
   ],
 
   // Audio Player State
-  bpm: 120,
+  bpm: 85,
   isPlaying: false,
   loop: false,
   playGapsTick: true,

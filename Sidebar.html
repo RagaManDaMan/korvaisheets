@@ -836,21 +836,23 @@
       // Play Korvai stroke
       var event = flatEvents[currentEventIdx];
       if (event) {
+        var instrument = 'mridangam';
+        if (event.part === 'A') {
+          instrument = document.getElementById('inst-a').value;
+        } else if (event.part === 'B') {
+          instrument = document.getElementById('inst-b').value;
+        }
+
         if (event.type === 'stroke') {
-          var instrument = 'mridangam';
-          if (event.part === 'A') {
-            instrument = document.getElementById('inst-a').value;
-          } else if (event.part === 'B') {
-            instrument = document.getElementById('inst-b').value;
-          }
-          
           if (instrument === 'mridangam') {
             playMridangamStroke(time, event.syllable);
           } else if (instrument === 'drumkit') {
             playMidiDrumStroke(time, event.syllable);
           }
         } else if (event.type === 'gap') {
-          playGapTick(time);
+          if (instrument !== 'drumkit') {
+            playGapTick(time);
+          }
         }
       }
       
@@ -929,6 +931,9 @@
       gain.connect(audioCtx.destination);
       
       var cleanSyl = syllable.toLowerCase().trim();
+      if (cleanSyl === "," || cleanSyl === ";" || cleanSyl === "rest" || !cleanSyl) {
+        return;
+      }
       var startFreq = 380;
       var endFreq = 180;
       var duration = 0.08;
@@ -1011,6 +1016,9 @@
     function playMidiDrumStroke(time, syllable) {
       if (!audioCtx) return;
       var cleanSyl = syllable.toLowerCase().trim();
+      if (cleanSyl === "," || cleanSyl === ";" || cleanSyl === "rest" || !cleanSyl) {
+        return;
+      }
       
       var trebleLong = ["taam", "thaam", "thoom", "toom", "jhem", "jem"];
       var bassLong = ["dheem", "naam", "daam", "deem"];

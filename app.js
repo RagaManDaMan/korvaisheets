@@ -1087,21 +1087,23 @@ function scheduleNextSubdivision(time) {
   if (state.isPlaying) {
     const event = state.flatKorvaiEvents[state.currentMatraInKorvai];
     if (event) {
+      let instrument = 'mridangam';
+      if (event.part === 'A') {
+        instrument = state.instA;
+      } else if (event.part === 'B') {
+        instrument = state.instB;
+      }
+
       if (event.type === 'stroke') {
-        let instrument = 'mridangam';
-        if (event.part === 'A') {
-          instrument = state.instA;
-        } else if (event.part === 'B') {
-          instrument = state.instB;
-        }
-        
         if (instrument === 'mridangam') {
           playMridangamStroke(time, event.syllable);
         } else if (instrument === 'drumkit') {
           playMidiDrumStroke(time, event.syllable);
         }
       } else if (event.type === 'gap' && state.playGapsTick) {
-        playGapTick(time);
+        if (instrument !== 'drumkit') {
+          playGapTick(time);
+        }
       }
       
       // Visual feedback highlighting
@@ -1462,6 +1464,9 @@ function playMridangamStroke(time, syllable) {
   gain.connect(state.audioCtx.destination);
   
   const cleanSyl = syllable.toLowerCase().trim();
+  if (cleanSyl === ',' || cleanSyl === ';' || cleanSyl === 'rest' || !cleanSyl) {
+    return;
+  }
   
   let startFreq = 380;
   let endFreq = 180;
@@ -1549,6 +1554,9 @@ function playMridangamStroke(time, syllable) {
 function playMidiDrumStroke(time, syllable) {
   if (!state.audioCtx) return;
   const cleanSyl = syllable.toLowerCase().trim();
+  if (cleanSyl === ',' || cleanSyl === ';' || cleanSyl === 'rest' || !cleanSyl) {
+    return;
+  }
   
   const trebleLong = ["taam", "thaam", "thoom", "toom", "jhem", "jem"];
   const bassLong = ["dheem", "naam", "daam", "deem"];

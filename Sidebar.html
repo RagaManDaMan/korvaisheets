@@ -340,6 +340,23 @@
       </div>
     </div>
 
+    <div class="form-row form-group" style="margin-bottom: 8px;">
+      <div class="col" style="flex: 1;">
+        <label for="inst-a" style="margin-bottom: 2px; font-size: 10px;">Phrase A Sound</label>
+        <select id="inst-a" class="form-control" style="height: 26px; padding: 2px; font-size: 11px; color: #fff; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;">
+          <option value="mridangam" style="background: #222;" selected>Mridangam</option>
+          <option value="drumkit" style="background: #222;">MIDI Drum Kit</option>
+        </select>
+      </div>
+      <div class="col" style="flex: 1;">
+        <label for="inst-b" style="margin-bottom: 2px; font-size: 10px;">Connector B Sound</label>
+        <select id="inst-b" class="form-control" style="height: 26px; padding: 2px; font-size: 11px; color: #fff; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;">
+          <option value="mridangam" style="background: #222;">Mridangam</option>
+          <option value="drumkit" style="background: #222;" selected>MIDI Drum Kit</option>
+        </select>
+      </div>
+    </div>
+
     <button id="sidebar-play-btn" class="btn btn-secondary" onclick="toggleAudio()" style="margin-bottom:0;">
       ▶ Play Sound
     </button>
@@ -691,6 +708,9 @@
       var pSlots = parseTokensToSlots(lastGenerated.phrase);
       var cSlots = parseTokensToSlots(lastGenerated.connector);
       
+      pSlots.forEach(function(s) { s.part = 'A'; });
+      cSlots.forEach(function(s) { s.part = 'B'; });
+      
       // Structure: A B A B A
       flatEvents = [];
       flatEvents = flatEvents.concat(pSlots); // A1
@@ -817,7 +837,18 @@
       var event = flatEvents[currentEventIdx];
       if (event) {
         if (event.type === 'stroke') {
-          playMridangamStroke(time, event.syllable);
+          var instrument = 'mridangam';
+          if (event.part === 'A') {
+            instrument = document.getElementById('inst-a').value;
+          } else if (event.part === 'B') {
+            instrument = document.getElementById('inst-b').value;
+          }
+          
+          if (instrument === 'mridangam') {
+            playMridangamStroke(time, event.syllable);
+          } else if (instrument === 'drumkit') {
+            playMidiDrumStroke(time, event.syllable);
+          }
         } else if (event.type === 'gap') {
           playGapTick(time);
         }
@@ -975,6 +1006,149 @@
       
       osc.start(time);
       osc.stop(time + duration);
+    }
+
+    function playMidiDrumStroke(time, syllable) {
+      if (!audioCtx) return;
+      var cleanSyl = syllable.toLowerCase().trim();
+      
+      var trebleLong = ["taam", "thaam", "thoom", "toom", "jhem", "jem"];
+      var bassLong = ["dheem", "naam", "daam", "deem"];
+      
+      if (bassLong.indexOf(cleanSyl) !== -1) {
+        // Kick Drum: Deep pitch sweep
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(150, time);
+        osc.frequency.exponentialRampToValueAtTime(40, time + 0.08);
+        gain.gain.setValueAtTime(0.65, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+        
+        osc.start(time);
+        osc.stop(time + 0.26);
+      } else if (trebleLong.indexOf(cleanSyl) !== -1) {
+        // Open Hi-Hat: Filtered noise
+        var bufferSize = audioCtx.sampleRate * 0.35;
+        var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        
+        var noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        
+        var filter = audioCtx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(5000, time);
+        
+        var gain = audioCtx.createGain();
+        noiseNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        gain.gain.setValueAtTime(0.2, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+        
+        noiseNode.start(time);
+        noiseNode.stop(time + 0.35);
+      } else if (["t", "ta", "tha", "te"].indexOf(cleanSyl) !== -1) {
+        // Snare: Shell + Noise
+        var bufferSize = audioCtx.sampleRate * 0.2;
+        var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        var noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        
+        var filter = audioCtx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1800, time);
+        filter.Q.setValueAtTime(2.0, time);
+        
+        var noiseGain = audioCtx.createGain();
+        noiseNode.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        
+        noiseGain.gain.setValueAtTime(0.2, time);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+        
+        noiseNode.start(time);
+        noiseNode.stop(time + 0.18);
+        
+        var osc = audioCtx.createOscillator();
+        var oscGain = audioCtx.createGain();
+        osc.connect(oscGain);
+        oscGain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(180, time);
+        oscGain.gain.setValueAtTime(0.25, time);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+        
+        osc.start(time);
+        osc.stop(time + 0.12);
+      } else if (["k", "ki", "ka", "ke"].indexOf(cleanSyl) !== -1) {
+        // Closed Hi-Hat
+        var bufferSize = audioCtx.sampleRate * 0.05;
+        var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        var noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        
+        var filter = audioCtx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(7500, time);
+        
+        var gain = audioCtx.createGain();
+        noiseNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        gain.gain.setValueAtTime(0.18, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+        
+        noiseNode.start(time);
+        noiseNode.stop(time + 0.05);
+      } else if (["d", "dhi", "g", "n", "na", "num"].indexOf(cleanSyl) !== -1) {
+        // Low Tom
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(180, time);
+        osc.frequency.exponentialRampToValueAtTime(80, time + 0.1);
+        
+        gain.gain.setValueAtTime(0.4, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+        
+        osc.start(time);
+        osc.stop(time + 0.13);
+      } else {
+        // Rimshot / Woodblock
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.setValueAtTime(260, time);
+        osc.frequency.exponentialRampToValueAtTime(130, time + 0.06);
+        
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+        
+        osc.start(time);
+        osc.stop(time + 0.09);
+      }
     }
 
     function playGapTick(time) {

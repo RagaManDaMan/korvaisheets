@@ -50,6 +50,8 @@ const state = {
   isPlaying: false,
   loop: false,
   playGapsTick: true,
+  instA: 'mridangam',
+  instB: 'drumkit',
   
   // Scheduler variables
   audioCtx: null,
@@ -250,6 +252,19 @@ function initUI() {
   loopKorvai.addEventListener('change', (e) => {
     state.loop = e.target.checked;
   });
+
+  const instASelect = document.getElementById('inst-a-select');
+  const instBSelect = document.getElementById('inst-b-select');
+  if (instASelect) {
+    instASelect.addEventListener('change', (e) => {
+      state.instA = e.target.value;
+    });
+  }
+  if (instBSelect) {
+    instBSelect.addEventListener('change', (e) => {
+      state.instB = e.target.value;
+    });
+  }
 
   // Presets load
   document.querySelectorAll('.btn-preset').forEach(btn => {
@@ -820,8 +835,9 @@ function flattenPlaybackEvents() {
   let globalMatraIndex = 0;
   
   state.lines.forEach((lineNumbers, lineIndex) => {
-    lineNumbers.forEach((num) => {
+    lineNumbers.forEach((num, indexInLine) => {
       const phraseText = activeDict[num] || '';
+      const part = (indexInLine % 2 === 0) ? 'A' : 'B';
       
       if (state.renderStyle === 'notation') {
         let i = 0;
@@ -848,14 +864,16 @@ function flattenPlaybackEvents() {
               type: 'gap',
               syllable: ';',
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
             state.flatKorvaiEvents.push({
               type: 'continuation',
               syllable: ';',
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
             i++;
@@ -864,7 +882,8 @@ function flattenPlaybackEvents() {
               type: 'gap',
               syllable: ',',
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
             i++;
@@ -874,14 +893,16 @@ function flattenPlaybackEvents() {
                 type: 'stroke',
                 syllable: reverseMap[char],
                 lineIndex: lineIndex,
-                globalIndex: globalMatraIndex
+                globalIndex: globalMatraIndex,
+                part: part
               });
               globalMatraIndex++;
               state.flatKorvaiEvents.push({
                 type: 'continuation',
                 syllable: ',',
                 lineIndex: lineIndex,
-                globalIndex: globalMatraIndex
+                globalIndex: globalMatraIndex,
+                part: part
               });
               globalMatraIndex++;
               i += 2;
@@ -890,7 +911,8 @@ function flattenPlaybackEvents() {
                 type: 'stroke',
                 syllable: shortMap[char],
                 lineIndex: lineIndex,
-                globalIndex: globalMatraIndex
+                globalIndex: globalMatraIndex,
+                part: part
               });
               globalMatraIndex++;
               i++;
@@ -908,14 +930,16 @@ function flattenPlaybackEvents() {
               type: 'gap',
               syllable: ';',
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
             state.flatKorvaiEvents.push({
               type: 'continuation',
               syllable: ';',
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
           } else {
@@ -924,7 +948,8 @@ function flattenPlaybackEvents() {
               type: isGap ? 'gap' : 'stroke',
               syllable: item,
               lineIndex: lineIndex,
-              globalIndex: globalMatraIndex
+              globalIndex: globalMatraIndex,
+              part: part
             });
             globalMatraIndex++;
           }
@@ -1063,7 +1088,18 @@ function scheduleNextSubdivision(time) {
     const event = state.flatKorvaiEvents[state.currentMatraInKorvai];
     if (event) {
       if (event.type === 'stroke') {
-        playMridangamStroke(time, event.syllable);
+        let instrument = 'mridangam';
+        if (event.part === 'A') {
+          instrument = state.instA;
+        } else if (event.part === 'B') {
+          instrument = state.instB;
+        }
+        
+        if (instrument === 'mridangam') {
+          playMridangamStroke(time, event.syllable);
+        } else if (instrument === 'drumkit') {
+          playMidiDrumStroke(time, event.syllable);
+        }
       } else if (event.type === 'gap' && state.playGapsTick) {
         playGapTick(time);
       }
@@ -1507,6 +1543,150 @@ function playMridangamStroke(time, syllable) {
   
   osc.start(time);
   osc.stop(time + duration);
+}
+
+// AUDIO SYNTH: MIDI Drum Kit hit
+function playMidiDrumStroke(time, syllable) {
+  if (!state.audioCtx) return;
+  const cleanSyl = syllable.toLowerCase().trim();
+  
+  const trebleLong = ["taam", "thaam", "thoom", "toom", "jhem", "jem"];
+  const bassLong = ["dheem", "naam", "daam", "deem"];
+  
+  if (bassLong.includes(cleanSyl)) {
+    // Kick Drum: Deep pitch sweep
+    const osc = state.audioCtx.createOscillator();
+    const gain = state.audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(state.audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(150, time);
+    osc.frequency.exponentialRampToValueAtTime(40, time + 0.08);
+    gain.gain.setValueAtTime(0.65, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+    
+    osc.start(time);
+    osc.stop(time + 0.26);
+  } else if (trebleLong.includes(cleanSyl)) {
+    // Open Hi-Hat: Filtered noise
+    const bufferSize = state.audioCtx.sampleRate * 0.35;
+    const buffer = state.audioCtx.createBuffer(1, bufferSize, state.audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    
+    const noiseNode = state.audioCtx.createBufferSource();
+    noiseNode.buffer = buffer;
+    
+    const filter = state.audioCtx.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.setValueAtTime(5000, time);
+    
+    const gain = state.audioCtx.createGain();
+    noiseNode.connect(filter);
+    filter.connect(gain);
+    gain.connect(state.audioCtx.destination);
+    
+    gain.gain.setValueAtTime(0.2, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+    
+    noiseNode.start(time);
+    noiseNode.stop(time + 0.35);
+  } else if (['t', 'ta', 'tha', 'te'].includes(cleanSyl)) {
+    // Snare: Shell + Noise
+    const bufferSize = state.audioCtx.sampleRate * 0.2;
+    const buffer = state.audioCtx.createBuffer(1, bufferSize, state.audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noiseNode = state.audioCtx.createBufferSource();
+    noiseNode.buffer = buffer;
+    
+    const filter = state.audioCtx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(1800, time);
+    filter.Q.setValueAtTime(2.0, time);
+    
+    const noiseGain = state.audioCtx.createGain();
+    noiseNode.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(state.audioCtx.destination);
+    
+    noiseGain.gain.setValueAtTime(0.2, time);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+    
+    noiseNode.start(time);
+    noiseNode.stop(time + 0.18);
+    
+    const osc = state.audioCtx.createOscillator();
+    const oscGain = state.audioCtx.createGain();
+    osc.connect(oscGain);
+    oscGain.connect(state.audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(180, time);
+    oscGain.gain.setValueAtTime(0.25, time);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+    
+    osc.start(time);
+    osc.stop(time + 0.12);
+  } else if (['k', 'ki', 'ka', 'ke'].includes(cleanSyl)) {
+    // Closed Hi-Hat
+    const bufferSize = state.audioCtx.sampleRate * 0.05;
+    const buffer = state.audioCtx.createBuffer(1, bufferSize, state.audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noiseNode = state.audioCtx.createBufferSource();
+    noiseNode.buffer = buffer;
+    
+    const filter = state.audioCtx.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.setValueAtTime(7500, time);
+    
+    const gain = state.audioCtx.createGain();
+    noiseNode.connect(filter);
+    filter.connect(gain);
+    gain.connect(state.audioCtx.destination);
+    
+    gain.gain.setValueAtTime(0.18, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+    
+    noiseNode.start(time);
+    noiseNode.stop(time + 0.05);
+  } else if (['d', 'dhi', 'g', 'n', 'na', 'mi', 'num'].includes(cleanSyl)) {
+    // Low Tom
+    const osc = state.audioCtx.createOscillator();
+    const gain = state.audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(state.audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(180, time);
+    osc.frequency.exponentialRampToValueAtTime(80, time + 0.1);
+    
+    gain.gain.setValueAtTime(0.4, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+    
+    osc.start(time);
+    osc.stop(time + 0.13);
+  } else {
+    // Rimshot / Woodblock
+    const osc = state.audioCtx.createOscillator();
+    const gain = state.audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(state.audioCtx.destination);
+    
+    osc.frequency.setValueAtTime(260, time);
+    osc.frequency.exponentialRampToValueAtTime(130, time + 0.06);
+    
+    gain.gain.setValueAtTime(0.3, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+    
+    osc.start(time);
+    osc.stop(time + 0.09);
+  }
 }
 
 // AUDIO SYNTH: Soft click on gaps
